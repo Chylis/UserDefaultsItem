@@ -1,12 +1,13 @@
 import Foundation
 
+
 @propertyWrapper
-struct UserDefaultsItem<T: Codable> {
+public struct UserDefaultsItem<T: Codable> {
     private let key: String
     private let defaultValue: T
     private let storage: UserDefaults
     
-    init(key: String, defaultValue: T, storage: UserDefaults = .standard) {
+    public init(key: String, defaultValue: T, storage: UserDefaults = .standard) {
         self.key = key
         self.defaultValue = defaultValue
         self.storage = storage
@@ -21,9 +22,13 @@ struct UserDefaultsItem<T: Codable> {
             return decodedValue
         }
         set {
-            let data = try! JSONEncoder().encode(newValue)
-            storage.setValue(data, forKey: key)
-            storage.synchronize()
+            do {
+                let data = try JSONEncoder().encode(newValue)
+                storage.set(data, forKey: key)
+                storage.synchronize()
+            } catch {
+                print("Failed persisting user defaults item: \(newValue), error: \(error)")
+            }
         }
     }
 }
