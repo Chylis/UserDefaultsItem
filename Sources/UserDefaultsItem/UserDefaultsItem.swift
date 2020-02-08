@@ -1,7 +1,7 @@
 import Foundation
 
 @propertyWrapper
-struct UserDefaultsItem<T> {
+struct UserDefaultsItem<T: Codable> {
     private let key: String
     private let defaultValue: T
     private let storage: UserDefaults
@@ -14,10 +14,15 @@ struct UserDefaultsItem<T> {
     
     public var wrappedValue: T {
         get {
-            storage.object(forKey: key) as? T ?? defaultValue
+            guard let data = storage.object(forKey: key) as? Data,
+                let decodedValue = try? JSONDecoder().decode(T.self, from: data) else {
+                    return defaultValue
+            }
+            return decodedValue
         }
         set {
-            storage.setValue(newValue, forKey: key)
+            let data = try! JSONEncoder().encode(newValue)
+            storage.setValue(data, forKey: key)
             storage.synchronize()
         }
     }
