@@ -1,7 +1,7 @@
 import Foundation
 
 @propertyWrapper
-public final class KeychainItem {
+public struct KeychainItem {
     /// Dynamic lookup value used to retrieve values from the keychain.
     private let account: String
     
